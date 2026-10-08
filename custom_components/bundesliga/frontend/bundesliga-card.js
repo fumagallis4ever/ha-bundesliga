@@ -71,6 +71,24 @@ class BundesligaCard extends HTMLElement {
     this._render();
   }
 
+  // Von Home Assistant gesetzt: Kartenvorschau im Editor bzw. Dashboard im Bearbeitungsmodus
+  set preview(v) {
+    this._preview = v;
+    this._render();
+  }
+
+  set editMode(v) {
+    this._editMode = v;
+    this._render();
+  }
+
+  _setzeSichtbar(sichtbar) {
+    if (this.hidden === !sichtbar) return;
+    this.hidden = !sichtbar;
+    this.style.display = sichtbar ? "" : "none";
+    this.dispatchEvent(new Event("card-visibility-changed", { bubbles: true, composed: true }));
+  }
+
   getCardSize() {
     return 4;
   }
@@ -107,12 +125,17 @@ class BundesligaCard extends HTMLElement {
   _render() {
     if (!this._hass || !this._config || !this.shadowRoot) return;
     const live = this._hass.states[LIVE_ENTITY]?.state === "on";
-    if (this._config.nur_live && !live) {
-      this.style.display = "none";
+    const bearbeiten = Boolean(this._preview || this._editMode);
+    const versteckt = this._config.nur_live && !live;
+    if (versteckt && !bearbeiten) {
+      this._setzeSichtbar(false);
       this.shadowRoot.innerHTML = "";
       return;
     }
-    this.style.display = "";
+    this._setzeSichtbar(true);
+    const hinweisVersteckt = versteckt
+      ? '<div class="versteckt">Ausgeblendet, bis ein Spiel läuft oder bald beginnt – nur im Bearbeitungsmodus sichtbar.</div>'
+      : "";
 
     const heute = this._config.anzeige === "heute";
     let inhalt = "";
@@ -149,11 +172,13 @@ class BundesligaCard extends HTMLElement {
         tr.aktiv .erg { color: var(--error-color, #db4437); }
         .live { color: var(--error-color, #db4437); font-weight: 600; }
         .hinweis { color: var(--secondary-text-color); padding: 8px 0; }
+        .versteckt { font-size: 0.85em; color: var(--secondary-text-color); border: 1px dashed var(--divider-color); border-radius: 8px; padding: 6px 10px; margin: 6px 0; }
       </style>
       <ha-card>
         <div class="kopf"><ha-icon icon="mdi:soccer"></ha-icon>${esc(this._config.titel)}${
           live ? '<span class="punkt">● LIVE</span>' : ""
         }</div>
+        ${hinweisVersteckt}
         ${inhalt}
       </ha-card>`;
   }
