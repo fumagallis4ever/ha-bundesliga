@@ -17,4 +17,21 @@ Abfrage alle 10 Minuten, während Spielen jede Minute.
 
 ## Dashboard-Karte
 
-`examples/karte_bundesliga.yaml` enthält eine Markdown-Karte, die nur bei laufenden oder anstehenden Spielen erscheint. Einfügen über Karte hinzufügen → Manuell.
+Die Integration bringt eine eigene Karte mit. Nach der Installation erscheint sie unter **Karte hinzufügen → Bundesliga**, eine Ressource muss nicht eingetragen werden. Einstellbar im visuellen Editor:
+
+- Titel und Ligen
+- Anzeige: nur heutige Spiele oder ganzer Spieltag
+- Nur anzeigen, wenn ein Spiel läuft oder bald beginnt
+- Vereinslogos ein/aus
+
+```yaml
+type: custom:bundesliga-card
+entities:
+  - sensor.bundesliga_bl1
+  - sensor.bundesliga_bl2
+anzeige: heute
+nur_live: false
+logos: true
+```
+
+Die frühere Markdown-Variante liegt weiterhin unter `examples/karte_bundesliga.yaml`.
