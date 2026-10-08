@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bundesliga (OpenLigaDB)",
+        "description": "Welche Wettbewerbe sollen angezeigt werden? Die Daten kommen kostenlos von OpenLigaDB.",
+        "data": { "ligen": "Wettbewerbe" }
+      }
+    },
+    "error": { "keine_liga": "Bitte mindestens einen Wettbewerb auswählen." },
+    "abort": { "already_configured": "Die Integration ist bereits eingerichtet. Wettbewerbe änderst du über „Konfigurieren“." }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Wettbewerbe",
+        "data": { "ligen": "Wettbewerbe" }
+      }
+    },
+    "error": { "keine_liga": "Bitte mindestens einen Wettbewerb auswählen." }
+  }
+}

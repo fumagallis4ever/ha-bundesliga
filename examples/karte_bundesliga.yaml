@@ -1,0 +1,24 @@
+# Karte "Bundesliga live" – erscheint nur, wenn ein Spiel kurz bevorsteht oder läuft
+# Einfügen: Karte hinzufügen -> Manuell -> alles ersetzen
+type: markdown
+visibility:
+  - condition: state
+    entity: binary_sensor.bundesliga_live
+    state: "on"
+content: |-
+  <h3><ha-icon icon="mdi:soccer"></ha-icon> Bundesliga live</h3>
+  <hr>
+  {%- for e in ['sensor.bundesliga_bl1', 'sensor.bundesliga_bl2'] %}
+  {%- set spiele = (state_attr(e, 'spiele') or []) | selectattr('heute') | list %}
+  {%- if spiele %}
+  <b>{{ state_attr(e, 'liga') }}</b> · {{ states(e) }}
+  <table width="100%">
+  {%- for s in spiele %}
+  {%- set zeit = as_local(as_datetime(s.anstoss)).strftime('%H:%M') %}
+  {%- set st = {'live': '🔴 live', 'beendet': 'Ende'}.get(s.status, zeit) %}
+  {%- set ergebnis = (s.tore_heim ~ ' : ' ~ s.tore_gast) if s.tore_heim is not none else ('0 : 0' if s.status == 'live' else '– : –') %}
+  <tr><td width="18%">{{ st }}</td><td align="right">{{ s.heim }}</td><td align="center" width="16%"><b>{{ ergebnis }}</b></td><td>{{ s.gast }}</td></tr>
+  {%- endfor %}
+  </table>
+  {%- endif %}
+  {%- endfor %}
