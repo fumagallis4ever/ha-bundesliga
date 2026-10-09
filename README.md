@@ -19,12 +19,14 @@ Mögliche Werte für `status` je Spiel: `geplant`, `live`, `halbzeit`, `beendet`
 
 ## Optional: Live-Stände über API-Football
 
-OpenLigaDB wird von Freiwilligen gepflegt – gerade bei der 2. Liga fehlen Ergebnisse manchmal stundenlang. Mit einem kostenlosen Schlüssel von [API-Football](https://dashboard.api-football.com/register) ergänzt die Integration Live-Stände, Spielminute, Halbzeit und fehlende Endergebnisse:
+OpenLigaDB wird von Freiwilligen gepflegt – gerade bei der 2. Liga fehlen Ergebnisse manchmal stundenlang. Mit einem Schlüssel von [API-Football](https://www.api-football.com/pricing) ergänzt die Integration Live-Stände, Spielminute, Halbzeit und fehlende Endergebnisse.
 
-1. Kostenlos registrieren und den API-Schlüssel aus dem Dashboard kopieren
+> **Wichtig:** Der Gratis-Tarif von API-Football enthält nur ältere Saisons, nicht die aktuelle. Für diese Funktion ist ein Bezahltarif nötig (Pro ab ca. 19 $/Monat, Stand Oktober 2026). Mit einem Gratis-Schlüssel meldet API-Football einen Tarif-Fehler, die Integration pausiert dann bis zum nächsten Tag und nutzt nur OpenLigaDB.
+
+1. Bei API-Football einen passenden Tarif buchen und den API-Schlüssel aus dem Dashboard kopieren
 2. Einstellungen → Geräte & Dienste → Bundesliga → **Konfigurieren** → Schlüssel eintragen
 
-OpenLigaDB bleibt die Hauptquelle (Spielplan, Logos, Spieltag). API-Football wird nur abgefragt, solange ein Spiel läuft oder ein Ergebnis fehlt, höchstens alle 6 Minuten pro Liga. Das reicht im Gratis-Tarif (100 Abrufe/Tag) für einen normalen Spieltag. Bei knappem Kontingent pausiert die Integration bis zum nächsten Tag; die übrigen Abrufe stehen im Attribut `api_football_abrufe_uebrig` von `binary_sensor.bundesliga_live`.
+OpenLigaDB bleibt die Hauptquelle (Spielplan, Logos, Spieltag). API-Football wird nur abgefragt, solange ein Spiel läuft oder ein Ergebnis fehlt, höchstens alle 6 Minuten pro Liga. Bei knappem Kontingent oder einem Fehler pausiert die Integration bis zum nächsten Tag; die übrigen Abrufe stehen im Attribut `api_football_abrufe_uebrig` von `binary_sensor.bundesliga_live`.
 
 ## Dashboard-Karte
 

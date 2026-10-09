@@ -172,7 +172,14 @@ class ApiFootball:
                     self.verbleibend, morgen.strftime("%H:%M"),
                 )
         if roh.get("errors"):
-            _LOGGER.warning("API-Football meldet Fehler: %s", roh["errors"])
+            # Tarif- oder Schlüsselfehler bessern sich nicht von selbst – einmal warnen, dann bis morgen pausieren
+            morgen = (jetzt + timedelta(days=1)).replace(hour=0, minute=5, second=0, microsecond=0)
+            self._pause_bis = morgen
+            _LOGGER.warning(
+                "API-Football meldet Fehler: %s – pausiere bis %s UTC. "
+                "Hinweis: Der Gratis-Tarif enthält die aktuelle Saison nicht.",
+                roh["errors"], morgen.strftime("%d.%m. %H:%M"),
+            )
             return cache[1] if cache else []
         spiele = roh.get("response") or []
         self._cache[(liga, tag)] = (jetzt, spiele)

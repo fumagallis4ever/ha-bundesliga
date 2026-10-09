@@ -9,7 +9,7 @@
           "api_football_key": "API-Football-Schlüssel (optional)"
         },
         "data_description": {
-          "api_football_key": "Optional: API-Football-Schlüssel (kostenlos auf dashboard.api-football.com). Damit kommen Live-Stände und fehlende Ergebnisse zusätzlich von API-Football. Leer lassen = nur OpenLigaDB."
+          "api_football_key": "Optional: API-Football-Schlüssel (dashboard.api-football.com). Ergänzt Live-Stände und fehlende Ergebnisse. Achtung: Der Gratis-Tarif enthält die aktuelle Saison nicht, nötig ist ein Bezahltarif (ab ca. 19 $/Monat). Leer lassen = nur OpenLigaDB."
         }
       }
     },
@@ -30,7 +30,7 @@
           "api_football_key": "API-Football-Schlüssel (optional)"
         },
         "data_description": {
-          "api_football_key": "Optional: API-Football-Schlüssel (kostenlos auf dashboard.api-football.com). Damit kommen Live-Stände und fehlende Ergebnisse zusätzlich von API-Football. Leer lassen = nur OpenLigaDB."
+          "api_football_key": "Optional: API-Football-Schlüssel (dashboard.api-football.com). Ergänzt Live-Stände und fehlende Ergebnisse. Achtung: Der Gratis-Tarif enthält die aktuelle Saison nicht, nötig ist ein Bezahltarif (ab ca. 19 $/Monat). Leer lassen = nur OpenLigaDB."
         }
       }
     },
