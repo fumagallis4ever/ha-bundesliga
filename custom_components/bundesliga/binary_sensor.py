@@ -6,7 +6,7 @@ from homeassistant.util import dt as dt_util
 from datetime import timedelta
 
 from .const import LIGEN
-from .coordinator import BundesligaCoordinator, im_zeitfenster, status
+from .coordinator import LIVE_STATUS, BundesligaCoordinator, im_zeitfenster, status
 from .sensor import geraet
 
 
@@ -52,6 +52,9 @@ class LiveSensor(CoordinatorEntity[BundesligaCoordinator], BinarySensorEntity):
         jetzt = dt_util.utcnow()
         live = [
             f"{LIGEN.get(liga, liga)}: {s['heim']} – {s['gast']}"
-            for liga, s in self._alle() if status(s, jetzt) == "live"
+            for liga, s in self._alle() if status(s, jetzt) in LIVE_STATUS
         ]
-        return {"live_spiele": live, "anzahl_live": len(live)}
+        attribute = {"live_spiele": live, "anzahl_live": len(live)}
+        if self.coordinator.api_football and self.coordinator.api_football.verbleibend is not None:
+            attribute["api_football_abrufe_uebrig"] = self.coordinator.api_football.verbleibend
+        return attribute

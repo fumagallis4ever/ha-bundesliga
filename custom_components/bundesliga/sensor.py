@@ -4,7 +4,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, LIGEN
-from .coordinator import BundesligaCoordinator, anstoss, status
+from .coordinator import LIVE_STATUS, BundesligaCoordinator, anstoss, status
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -59,7 +59,8 @@ class LigaSensor(CoordinatorEntity[BundesligaCoordinator], SensorEntity):
         return {
             "liga": LIGEN.get(self.liga, self.liga),
             "kuerzel": self.liga,
-            "live": sum(1 for s in spiele if s["status"] == "live"),
+            "live": sum(1 for s in spiele if s["status"] in LIVE_STATUS),
             "spiele_heute": sum(1 for s in spiele if s["heute"]),
             "spiele": spiele,
+            "quelle_live": "API-Football" if self.coordinator.api_football else "OpenLigaDB",
         }

@@ -105,10 +105,15 @@ class BundesligaCard extends HTMLElement {
   }
 
   _zeile(s, mitTag) {
-    const live = s.status === "live";
-    const st = live ? '<span class="live">● live</span>' : s.status === "beendet" ? "Ende" : esc(this._zeit(s.anstoss, mitTag));
-    const ergebnis =
-      s.tore_heim != null ? `${esc(s.tore_heim)} : ${esc(s.tore_gast)}` : live ? "0 : 0" : "– : –";
+    const live = s.status === "live" || s.status === "halbzeit";
+    let st;
+    if (s.status === "halbzeit") st = '<span class="live">● HZ</span>';
+    else if (live) st = `<span class="live">● ${s.spielminute != null ? esc(s.spielminute) + "'" : "live"}</span>`;
+    else if (s.status === "beendet") st = "Ende";
+    else if (s.status === "abgesagt") st = '<span class="abgesagt">abgesagt</span>';
+    else if (s.status === "offen") st = '<span title="Spiel vorbei, Ergebnis noch nicht verfügbar">offen</span>';
+    else st = esc(this._zeit(s.anstoss, mitTag));
+    const ergebnis = s.tore_heim != null ? `${esc(s.tore_heim)} : ${esc(s.tore_gast)}` : "– : –";
     const logo = (url) => (this._config.logos && url ? `<img src="${esc(url)}" alt="" loading="lazy">` : "");
     const tor =
       live && s.letztes_tor_von
@@ -171,6 +176,7 @@ class BundesligaCard extends HTMLElement {
         img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; margin: 0 6px; }
         tr.aktiv .erg { color: var(--error-color, #db4437); }
         .live { color: var(--error-color, #db4437); font-weight: 600; }
+        .abgesagt { text-decoration: line-through; }
         .hinweis { color: var(--secondary-text-color); padding: 8px 0; }
         .versteckt { font-size: 0.85em; color: var(--secondary-text-color); border: 1px dashed var(--divider-color); border-radius: 8px; padding: 6px 10px; margin: 6px 0; }
       </style>

@@ -9,8 +9,10 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
+from .apifootball import ApiFootball
 from .const import (
     API_URL,
+    CONF_API_KEY,
     CONF_LIGEN,
     DOMAIN,
     INTERVALL_LIVE,
@@ -27,12 +29,20 @@ def anstoss(spiel: dict) -> datetime | None:
     return dt_util.parse_datetime(spiel["anstoss"]) if spiel.get("anstoss") else None
 
 
+LIVE_STATUS = ("live", "halbzeit")
+
+
 def status(spiel: dict, jetzt: datetime) -> str:
+    """geplant, live, halbzeit, beendet, abgesagt oder offen (vorbei, aber kein Ergebnis bekannt)."""
     if spiel.get("beendet"):
         return "beendet"
+    if spiel.get("status_api") in ("live", "halbzeit", "abgesagt"):
+        return spiel["status_api"]
     beginn = anstoss(spiel)
     if beginn and beginn <= jetzt <= beginn + SPIELDAUER:
         return "live"
+    if beginn and jetzt > beginn + SPIELDAUER:
+        return "offen"
     return "geplant"
 
 
@@ -49,6 +59,10 @@ class BundesligaCoordinator(DataUpdateCoordinator[dict]):
             update_interval=INTERVALL_NORMAL, config_entry=entry,
         )
         self.ligen: list[str] = entry.options.get(CONF_LIGEN, STANDARD_LIGEN)
+        schluessel = (entry.options.get(CONF_API_KEY) or "").strip()
+        self.api_football = (
+            ApiFootball(async_get_clientsession(hass), schluessel) if schluessel else None
+        )
 
     async def _async_update_data(self) -> dict:
         session = async_get_clientsession(self.hass)
@@ -67,6 +81,12 @@ class BundesligaCoordinator(DataUpdateCoordinator[dict]):
                     continue
                 raise UpdateFailed(f"OpenLigaDB nicht erreichbar ({liga}): {err}") from err
             daten[liga] = self._aufbereiten(roh if isinstance(roh, list) else [])
+
+        if self.api_football:
+            try:
+                await self.api_football.ergaenzen(daten)
+            except Exception:  # Zweitquelle darf die Hauptdaten nie blockieren
+                _LOGGER.exception("API-Football-Ergänzung fehlgeschlagen")
 
         jetzt = dt_util.utcnow()
         aktiv = any(
@@ -95,6 +115,8 @@ class BundesligaCoordinator(DataUpdateCoordinator[dict]):
                 {
                     "heim": t1.get("shortName") or t1.get("teamName"),
                     "gast": t2.get("shortName") or t2.get("teamName"),
+                    "heim_name": t1.get("teamName"),
+                    "gast_name": t2.get("teamName"),
                     "heim_logo": t1.get("teamIconUrl"),
                     "gast_logo": t2.get("teamIconUrl"),
                     "anstoss": m.get("matchDateTimeUTC"),

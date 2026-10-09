@@ -3,20 +3,40 @@
     "step": {
       "user": {
         "title": "Bundesliga (OpenLigaDB)",
-        "description": "Welche Wettbewerbe sollen angezeigt werden? Die Daten kommen kostenlos von OpenLigaDB.",
-        "data": { "ligen": "Wettbewerbe" }
+        "description": "Welche Wettbewerbe sollen angezeigt werden? Die Daten kommen kostenlos von OpenLigaDB, optional ergänzt um Live-Stände von API-Football.",
+        "data": {
+          "ligen": "Wettbewerbe",
+          "api_football_key": "API-Football-Schlüssel (optional)"
+        },
+        "data_description": {
+          "api_football_key": "Optional: API-Football-Schlüssel (kostenlos auf dashboard.api-football.com). Damit kommen Live-Stände und fehlende Ergebnisse zusätzlich von API-Football. Leer lassen = nur OpenLigaDB."
+        }
       }
     },
-    "error": { "keine_liga": "Bitte mindestens einen Wettbewerb auswählen." },
-    "abort": { "already_configured": "Die Integration ist bereits eingerichtet. Wettbewerbe änderst du über „Konfigurieren“." }
+    "error": {
+      "keine_liga": "Bitte mindestens einen Wettbewerb auswählen.",
+      "api_key_ungueltig": "Der API-Football-Schlüssel wurde abgelehnt. Bitte prüfen."
+    },
+    "abort": {
+      "already_configured": "Die Integration ist bereits eingerichtet. Wettbewerbe änderst du über „Konfigurieren“."
+    }
   },
   "options": {
     "step": {
       "init": {
         "title": "Wettbewerbe",
-        "data": { "ligen": "Wettbewerbe" }
+        "data": {
+          "ligen": "Wettbewerbe",
+          "api_football_key": "API-Football-Schlüssel (optional)"
+        },
+        "data_description": {
+          "api_football_key": "Optional: API-Football-Schlüssel (kostenlos auf dashboard.api-football.com). Damit kommen Live-Stände und fehlende Ergebnisse zusätzlich von API-Football. Leer lassen = nur OpenLigaDB."
+        }
       }
     },
-    "error": { "keine_liga": "Bitte mindestens einen Wettbewerb auswählen." }
+    "error": {
+      "keine_liga": "Bitte mindestens einen Wettbewerb auswählen.",
+      "api_key_ungueltig": "Der API-Football-Schlüssel wurde abgelehnt. Bitte prüfen."
+    }
   }
 }
