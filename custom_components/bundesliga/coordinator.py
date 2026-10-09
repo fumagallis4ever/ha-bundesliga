@@ -17,6 +17,8 @@ from .const import (
     DOMAIN,
     INTERVALL_LIVE,
     INTERVALL_NORMAL,
+    NACHLAUF_EINZEL,
+    SPIEL_URL,
     SPIELDAUER,
     STANDARD_LIGEN,
     VORLAUF,
@@ -80,7 +82,12 @@ class BundesligaCoordinator(DataUpdateCoordinator[dict]):
                     daten[liga] = self.data[liga]
                     continue
                 raise UpdateFailed(f"OpenLigaDB nicht erreichbar ({liga}): {err}") from err
-            daten[liga] = self._aufbereiten(roh if isinstance(roh, list) else [])
+            roh = roh if isinstance(roh, list) else []
+            # Die Liga-Abfrage ist bei OpenLigaDB serverseitig gecacht und während
+            # eines Spiels oft stundenlang veraltet. Laufende bzw. noch offene Spiele
+            # deshalb einzeln abfragen – dieser Endpunkt ist aktuell.
+            roh = await self._einzeln_auffrischen(session, roh)
+            daten[liga] = self._aufbereiten(roh)
 
         if self.api_football:
             try:
@@ -95,6 +102,36 @@ class BundesligaCoordinator(DataUpdateCoordinator[dict]):
         )
         self.update_interval = INTERVALL_LIVE if aktiv else INTERVALL_NORMAL
         return daten
+
+    @staticmethod
+    async def _einzeln_auffrischen(session: aiohttp.ClientSession, roh: list) -> list:
+        jetzt = dt_util.utcnow()
+        zu_pruefen = []
+        for i, m in enumerate(roh):
+            if m.get("matchIsFinished") or not m.get("matchID"):
+                continue
+            beginn = dt_util.parse_datetime(m.get("matchDateTimeUTC") or "")
+            if beginn and beginn - VORLAUF <= jetzt <= beginn + NACHLAUF_EINZEL:
+                zu_pruefen.append(i)
+        if not zu_pruefen:
+            return roh
+
+        async def holen(i: int) -> None:
+            try:
+                async with session.get(
+                    SPIEL_URL.format(roh[i]["matchID"]), timeout=aiohttp.ClientTimeout(total=20)
+                ) as antwort:
+                    antwort.raise_for_status()
+                    neu = await antwort.json(content_type=None)
+            except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
+                _LOGGER.debug("Einzelabruf Spiel %s fehlgeschlagen: %s", roh[i]["matchID"], err)
+                return
+            if isinstance(neu, dict) and neu.get("matchID") == roh[i]["matchID"]:
+                roh[i] = neu
+
+        roh = list(roh)
+        await asyncio.gather(*(holen(i) for i in zu_pruefen))
+        return roh
 
     @staticmethod
     def _aufbereiten(roh: list) -> dict:

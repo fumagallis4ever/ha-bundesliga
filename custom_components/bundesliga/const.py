@@ -12,6 +12,10 @@ LIGEN = {
 STANDARD_LIGEN = ["bl1", "bl2"]
 
 API_URL = "https://api.openligadb.de/getmatchdata/{}"
+# Einzelspiel-Abfrage – im Gegensatz zur Liga-Abfrage nicht veraltet gecacht
+SPIEL_URL = "https://api.openligadb.de/getmatchdata/{}"
+# So lange nach Anstoß wird ein noch nicht beendetes Spiel einzeln nachgefragt
+NACHLAUF_EINZEL = timedelta(hours=12)
 
 INTERVALL_NORMAL = timedelta(minutes=10)
 INTERVALL_LIVE = timedelta(minutes=1)
